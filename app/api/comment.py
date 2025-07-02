@@ -61,7 +61,7 @@ def update_comment(
         raise HTTPException(status_code=404, detail="Comment not found")
     if comment.author_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not enough permissions")
-    comment.content = comment_in.content
+    comment.content = comment_in.content  # type: ignore[assignment]
     db.commit()
     db.refresh(comment)
     return comment

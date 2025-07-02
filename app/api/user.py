@@ -35,13 +35,15 @@ def update_me(
     current_user: UserModel = Depends(get_current_user),
 ):
     if update.email:
-        current_user.email = update.email
+        current_user.email = update.email  # type: ignore[assignment]
     if update.username:
-        current_user.username = update.username
+        current_user.username = update.username  # type: ignore[assignment]
     if update.password:
         from app.core.security import get_password_hash
 
-        current_user.hashed_password = get_password_hash(update.password)
+        current_user.hashed_password = (  # type: ignore[assignment]
+            get_password_hash(update.password)
+        )
     db.commit()
     db.refresh(current_user)
     return current_user

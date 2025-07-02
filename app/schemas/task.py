@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from app.models.task import TaskPriority, TaskStatus
 
@@ -41,8 +41,7 @@ class TaskInDB(TaskBase):
     updated_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class Task(TaskInDB):
@@ -69,8 +68,7 @@ class TaskAssignmentInDB(TaskAssignmentBase):
     assigned_by_id: int
     assigned_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class TaskAssignment(TaskAssignmentInDB):

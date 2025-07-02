@@ -194,8 +194,8 @@ def complete_task(
         raise HTTPException(status_code=403, detail="Not enough permissions")
     if task.status == TaskStatus.COMPLETED:
         raise HTTPException(status_code=400, detail="Task is already completed")
-    task.status = TaskStatus.COMPLETED
-    task.completed_at = datetime.now()
+    task.status = TaskStatus.COMPLETED  # type: ignore[assignment]
+    task.completed_at = datetime.now()  # type: ignore[assignment]
     db.commit()
     db.refresh(task)
     return task

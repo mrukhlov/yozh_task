@@ -114,7 +114,7 @@ app = FastAPI(
 )
 
 # Set custom OpenAPI schema
-app.openapi = custom_openapi
+app.openapi = custom_openapi  # type: ignore
 
 # Routers
 app.include_router(auth.router)
