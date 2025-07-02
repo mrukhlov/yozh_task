@@ -1,9 +1,5 @@
 # Task Management System
 
-[![Test](https://github.com/{{ github.repository }}/workflows/Test/badge.svg)](https://github.com/{{ github.repository }}/actions/workflows/test.yml)
-[![CI/CD](https://github.com/{{ github.repository }}/workflows/CI/CD%20Pipeline/badge.svg)](https://github.com/{{ github.repository }}/actions/workflows/ci-cd.yml)
-[![Codecov](https://codecov.io/gh/{{ github.repository }}/branch/main/graph/badge.svg)](https://codecov.io/gh/{{ github.repository }})
-
 A comprehensive FastAPI-based task management system with user authentication, task CRUD operations, commenting, and assignment features.
 
 ## Features
