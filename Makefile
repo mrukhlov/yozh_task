@@ -20,7 +20,16 @@ type-check: ## Run mypy type checking
 
 check: format lint type-check ## Run all code quality checks
 
-test: ## Run tests
+test: ## Run tests (requires main database to be running)
+	pytest
+
+test-with-db: ## Run tests with database setup (starts main DB if needed)
+	@if ! docker-compose ps | grep -q "db.*Up"; then \
+		echo "Starting main database..."; \
+		docker-compose up -d db; \
+		echo "Waiting for database to be ready..."; \
+		until docker-compose exec -T db pg_isready -U postgres; do sleep 1; done; \
+	fi
 	pytest
 
 test-cov: ## Run tests with coverage

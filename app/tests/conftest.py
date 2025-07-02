@@ -1,8 +1,11 @@
 """Pytest configuration and fixtures."""
 
+import os
+
 import pytest
+from dotenv import load_dotenv
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
 from app.core.security import create_access_token
@@ -12,12 +15,31 @@ from app.models.comment import Comment
 from app.models.task import Task, TaskPriority, TaskStatus
 from app.models.user import User
 
-# Test database
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-)
+load_dotenv()
+
+DB_PORT = os.environ.get("DB_PORT", "5460")
+
+# Test database - using the same container as main app but different database
+SQLALCHEMY_DATABASE_URL = f"postgresql://postgres:password@localhost:{DB_PORT}/test_db"
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+
+def create_test_database():
+    """Create test database if it doesn't exist."""
+    # Connect to default postgres database to create test database
+    default_engine = create_engine(
+        f"postgresql://postgres:password@localhost:{DB_PORT}/postgres"
+    )
+    try:
+        with default_engine.connect() as conn:
+            conn.execute(text("COMMIT"))  # Close any open transaction
+            conn.execute(text("CREATE DATABASE test_db"))
+    except Exception:
+        # Database might already exist, which is fine
+        pass
+    finally:
+        default_engine.dispose()
 
 
 def override_get_db():
@@ -34,6 +56,8 @@ app.dependency_overrides[get_db] = override_get_db
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_database():
+    """Create test database and tables."""
+    create_test_database()
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)

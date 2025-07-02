@@ -85,7 +85,7 @@ def update_task(
         raise HTTPException(status_code=404, detail="Task not found")
     if task.creator_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not enough permissions")
-    for field, value in task_in.dict(exclude_unset=True).items():
+    for field, value in task_in.model_dump(exclude_unset=True).items():
         setattr(task, field, value)
     db.commit()
     db.refresh(task)
