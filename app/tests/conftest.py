@@ -17,7 +17,7 @@ from app.models.user import User
 
 load_dotenv()
 
-DB_PORT = os.environ.get("DB_PORT", "5460")
+DB_PORT = os.environ.get("DB_PORT", "5432")
 
 # Test database - using the same container as main app but different database
 SQLALCHEMY_DATABASE_URL = f"postgresql://postgres:password@localhost:{DB_PORT}/test_db"
