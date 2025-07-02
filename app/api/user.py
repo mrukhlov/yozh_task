@@ -42,7 +42,7 @@ def update_me(
         from app.core.security import get_password_hash
 
         current_user.hashed_password = (  # type: ignore[assignment]
-            get_password_hash(update.password)
+            get_password_hash(update.password)  # type: ignore[assignment]
         )
     db.commit()
     db.refresh(current_user)
