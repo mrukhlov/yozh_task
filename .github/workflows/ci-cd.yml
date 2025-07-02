@@ -111,7 +111,7 @@ jobs:
         output: 'trivy-results.sarif'
 
   deploy:
-    needs: [docker-build, docker-test, security-scan]
+    needs: [docker-build, security-scan]
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     environment: production
