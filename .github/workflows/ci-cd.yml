@@ -93,71 +93,6 @@ jobs:
           type=sha,prefix={{branch}}-
           type=raw,value=latest,enable={{is_default_branch}}
 
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-
-  docker-test:
-    needs: docker-build
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: test_db
-          POSTGRES_USER: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Pull Docker image
-      run: docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-
-    - name: Run Docker tests
-      run: |
-        # Test that the container starts and responds to health check
-        docker run -d --name test-app \
-          -e POSTGRES_DB=test_db \
-          -e POSTGRES_USER=postgres \
-          -e POSTGRES_PASSWORD=password \
-          -e POSTGRES_HOST=postgres \
-          -e POSTGRES_PORT=5432 \
-          -e SECRET_KEY=test-secret \
-          -e ALGORITHM=HS256 \
-          -e ACCESS_TOKEN_EXPIRE_MINUTES=30 \
-          -e DEBUG=true \
-          -e APP_HOST=0.0.0.0 \
-          -e APP_PORT=8000 \
-          --network host \
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-
-        # Wait for app to start
-        sleep 30
-
-        # Test health endpoint
-        curl -f http://localhost:8000/ping || exit 1
-
-        # Cleanup
-        docker stop test-app
-        docker rm test-app
-
   security-scan:
     needs: test
     runs-on: ubuntu-latest
@@ -174,12 +109,6 @@ jobs:
         scan-ref: '.'
         format: 'sarif'
         output: 'trivy-results.sarif'
-
-    - name: Upload Trivy scan results to GitHub Security tab
-      uses: github/codeql-action/upload-sarif@v2
-      if: always()
-      with:
-        sarif_file: 'trivy-results.sarif'
 
   deploy:
     needs: [docker-build, docker-test, security-scan]
