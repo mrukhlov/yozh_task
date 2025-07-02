@@ -50,7 +50,7 @@ jobs:
       run: poetry run mypy app/
 
     - name: Run tests
-      run: poetry run pytest --cov=app --cov-report=term-missing
+      run: poetry run pytest
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
